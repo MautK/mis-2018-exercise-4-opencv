@@ -8,6 +8,7 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
+import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
@@ -36,6 +37,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     private boolean              mIsJavaCamera = true;
     private MenuItem             mItemSwitchCamera = null;
     private CascadeClassifier    mCascadeClassifier = null;
+    private MatOfRect            mRect = null;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -45,6 +47,10 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
                 {
                     Log.i(TAG, "OpenCV loaded successfully");
                     mOpenCvCameraView.enableView();
+                    mCascadeClassifier = new CascadeClassifier();
+                    mCascadeClassifier.load(initAssetFile("haarcascade_eye.xml"));
+                    mRect = new MatOfRect();
+
                 } break;
                 default:
                 {
@@ -72,8 +78,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
 
         mOpenCvCameraView.setCvCameraViewListener(this);
-
-        mCascadeClassifier.load(initAssetFile("haarcascade_eye.xml"));
     }
 
     @Override
@@ -122,8 +126,18 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         Mat gray = inputFrame.gray();
         Mat col  = inputFrame.rgba();
 
+        mCascadeClassifier.detectMultiScale(gray, mRect);
+
+        /*
+        for(int x = 0; x < mRect.width(); x++){
+            for(int y = 0; y < mRect.height(); y++){
+                mRect
+            }
+        }
+        */
+
         Mat tmp = gray.clone();
-        Imgproc.Canny(gray, tmp, 80, 100);
+        Imgproc.Canny(gray, tmp, 30, 100);
         Imgproc.cvtColor(tmp, col, Imgproc.COLOR_GRAY2RGBA, 4);
 
         return col;
