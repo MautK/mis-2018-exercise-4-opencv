@@ -15,8 +15,10 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
+import org.opencv.videoio.VideoCapture;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -37,8 +39,13 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     private CameraBridgeViewBase mOpenCvCameraView;
     private boolean              mIsJavaCamera = true;
     private MenuItem             mItemSwitchCamera = null;
-    private CascadeClassifier    mCascadeClassifier = null;
+    private CascadeClassifier    mEyeCascadeClassifier = null;
+    private CascadeClassifier    mMouthCascadeClassiefier = null;
+    private CascadeClassifier    mNoseCascadeClassifier = null;
+    private Mat                  mMat = null;
     private MatOfRect            mRect = null;
+    private VideoCapture         videoDevice = null;
+    private Scalar               mScalar = null;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -48,9 +55,13 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
                 {
                     Log.i(TAG, "OpenCV loaded successfully");
                     mOpenCvCameraView.enableView();
-                    mCascadeClassifier = new CascadeClassifier();
-                    mCascadeClassifier.load(initAssetFile("haarcascade_eye.xml"));
-                    mRect = new MatOfRect();
+                    mEyeCascadeClassifier = new CascadeClassifier();
+                    mEyeCascadeClassifier.load(initAssetFile("haarcascade_eye.xml"));
+                    mMouthCascadeClassiefier = new CascadeClassifier();
+                    mMouthCascadeClassiefier.load(initAssetFile("haarcascade_smile.xml"));
+                    mNoseCascadeClassifier = new CascadeClassifier();
+                    mNoseCascadeClassifier.load(initAssetFile("nose.xml"));
+                    mScalar = new Scalar(0, 0, 0, 0);
 
                 } break;
                 default:
@@ -124,10 +135,15 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         return col;
         */
 
+        mRect = new MatOfRect();
+        mMat = new Mat();
+        videoDevice = new VideoCapture();
+
+
         Mat gray = inputFrame.gray();
         Mat col  = inputFrame.rgba();
 
-        mCascadeClassifier.detectMultiScale(
+        mNoseCascadeClassifier.detectMultiScale(
                 gray, mRect, 1.1, 2,0,
                 new Size(100, 100), new Size(0, 0)
         );
@@ -143,8 +159,20 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         }
         */
 
+
 //        Mat tmp = gray.clone();
         // Imgproc.Canny(gray, tmp, 30, 100);
+//        Imgproc.cvtColor(tmp, col, Imgproc.COLOR_GRAY2RGBA, 4);
+
+//        videoDevice.read(mMat);
+//        mEyeCascadeClassifier.detectMultiScale(mMat, mRect);
+//        for (Rect rect : mRect.toArray()) {
+//            Imgproc.rectangle(mMat, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), mScalar, 3);
+//        }
+//
+//
+//        Mat tmp = gray.clone();
+//        Imgproc.Canny(gray, tmp, 30, 100);
 //        Imgproc.cvtColor(tmp, col, Imgproc.COLOR_GRAY2RGBA, 4);
 
         return col;
