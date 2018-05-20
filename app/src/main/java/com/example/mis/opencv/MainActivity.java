@@ -12,6 +12,7 @@ import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 
@@ -126,7 +127,13 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         Mat gray = inputFrame.gray();
         Mat col  = inputFrame.rgba();
 
-        mCascadeClassifier.detectMultiScale(gray, mRect);
+        mCascadeClassifier.detectMultiScale(
+                gray, mRect, 1.1, 2,0,
+                new Size(100, 100), new Size(0, 0)
+        );
+        for (Rect rect : mRect.toArray()) {
+            Imgproc.rectangle(col, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(50, 255, 50), 2);
+        }
 
         /*
         for(int x = 0; x < mRect.width(); x++){
@@ -136,9 +143,9 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         }
         */
 
-        Mat tmp = gray.clone();
-        Imgproc.Canny(gray, tmp, 30, 100);
-        Imgproc.cvtColor(tmp, col, Imgproc.COLOR_GRAY2RGBA, 4);
+//        Mat tmp = gray.clone();
+        // Imgproc.Canny(gray, tmp, 30, 100);
+//        Imgproc.cvtColor(tmp, col, Imgproc.COLOR_GRAY2RGBA, 4);
 
         return col;
     }
