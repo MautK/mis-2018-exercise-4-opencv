@@ -160,7 +160,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         Imgproc.cvtColor(tmp, col, Imgproc.COLOR_GRAY2RGBA, 4);
 
 
-
         return col;
     }
 
