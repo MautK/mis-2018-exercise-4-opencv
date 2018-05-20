@@ -57,6 +57,9 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
                 {
                     Log.i(TAG, "OpenCV loaded successfully");
                     mOpenCvCameraView.enableView();
+
+                    //HaarCascade Library source
+                    // https://github.com/opencv/opencv/tree/3.4.1/data/haarcascades
                     mEyeCascadeClassifier = new CascadeClassifier();
                     mEyeCascadeClassifier.load(initAssetFile("haarcascade_eye.xml"));
                     mMouthCascadeClassiefier = new CascadeClassifier();
@@ -151,12 +154,17 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         mFaceCascadeClassifier.detectMultiScale( gray, mRect, 1.1, 2,0,
                 new Size(100, 100), new Size(0, 0));
 
+        //source face ratio's
+        // http://www.artyfactory.com/portraits/pencil-portraits/proportions-of-a-head.html
+
+
 
         for (Rect rect : mRect.toArray()) {
 
             Imgproc.rectangle(gray, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255, 50, 50), 2);
             Mat roiGray = gray.adjustROI(rect.y, rect.y + rect.height, rect.x, rect.x + rect.width);
             Mat roiColour = col.adjustROI(rect.y, rect.y + rect.height, rect.x, rect.x + rect.width);
+
 
 
             mNoseCascadeClassifier.detectMultiScale(
