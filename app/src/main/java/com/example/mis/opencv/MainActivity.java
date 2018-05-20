@@ -39,7 +39,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     private CameraBridgeViewBase mOpenCvCameraView;
     private boolean              mIsJavaCamera = true;
     private MenuItem             mItemSwitchCamera = null;
-    private CascadeClassifier    mNoseCascadeClassifier = null;
     private CascadeClassifier    mFaceCascadeClassifier = null;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -50,11 +49,9 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
                 {
                     Log.i(TAG, "OpenCV loaded successfully");
                     mOpenCvCameraView.enableView();
-                    // source of 'nose_new.xml'
-                    // https://github.com/opencv/opencv_contrib/blob/master/modules/face/data/cascades/haarcascade_mcs_nose.xml
-                    mNoseCascadeClassifier = new CascadeClassifier();
-                    mNoseCascadeClassifier.load(initAssetFile("nose_new.xml"));
-                    // TODO: we need to say where we got it from
+
+                    // HaarCascade Library source
+                    // https://github.com/opencv/opencv/tree/3.4.1/data/haarcascades
                     mFaceCascadeClassifier = new CascadeClassifier();
                     mFaceCascadeClassifier.load(initAssetFile("haarcascade_frontalface_default.xml"));
                 } break;
@@ -131,6 +128,8 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         mFaceCascadeClassifier.detectMultiScale( gray, mRect, 1.2, 6,0,
                 new Size(faceWidth, faceHeight), new Size(0, 0));
 
+        // source face ratio's
+        // http://www.artyfactory.com/portraits/pencil-portraits/proportions-of-a-head.html
         for (Rect rect : mRect.toArray()) {
             Imgproc.circle(
                     col,
