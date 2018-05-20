@@ -42,8 +42,10 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     private CascadeClassifier    mEyeCascadeClassifier = null;
     private CascadeClassifier    mMouthCascadeClassiefier = null;
     private CascadeClassifier    mNoseCascadeClassifier = null;
+    private CascadeClassifier    mFaceCascadeClassifier = null;
     private Mat                  mMat = null;
     private MatOfRect            mRect = null;
+    private MatOfRect            mNoseRect = null;
     private VideoCapture         videoDevice = null;
     private Scalar               mScalar = null;
 
@@ -61,6 +63,8 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
                     mMouthCascadeClassiefier.load(initAssetFile("haarcascade_smile.xml"));
                     mNoseCascadeClassifier = new CascadeClassifier();
                     mNoseCascadeClassifier.load(initAssetFile("nose.xml"));
+                    mFaceCascadeClassifier = new CascadeClassifier();
+                    mFaceCascadeClassifier.load(initAssetFile("nose.xml"));
                     mScalar = new Scalar(0, 0, 0, 0);
 
                 } break;
@@ -136,6 +140,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         */
 
         mRect = new MatOfRect();
+        mNoseRect = new MatOfRect();
         mMat = new Mat();
         videoDevice = new VideoCapture();
 
@@ -143,12 +148,25 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         Mat gray = inputFrame.gray();
         Mat col  = inputFrame.rgba();
 
-        mNoseCascadeClassifier.detectMultiScale(
-                gray, mRect, 1.1, 2,0,
-                new Size(100, 100), new Size(0, 0)
-        );
+        mFaceCascadeClassifier.detectMultiScale( gray, mRect, 1.1, 2,0,
+                new Size(100, 100), new Size(0, 0));
+
+
         for (Rect rect : mRect.toArray()) {
-            Imgproc.rectangle(col, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(50, 255, 50), 2);
+
+            Imgproc.rectangle(gray, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255, 50, 50), 2);
+            Mat roiGray = gray.adjustROI(rect.y, rect.y + rect.height, rect.x, rect.x + rect.width);
+            Mat roiColour = col.adjustROI(rect.y, rect.y + rect.height, rect.x, rect.x + rect.width);
+
+
+            mNoseCascadeClassifier.detectMultiScale(
+                    roiColour, mNoseRect, 1.1, 2, 0,
+                    new Size(10, 10), new Size(0, 0)
+            );
+
+            for (Rect rect1 : mNoseRect.toArray()) {
+                Imgproc.rectangle(roiColour, new Point(rect1.x, rect1.y), new Point(rect1.x + rect1.width, rect1.y + rect1.height), new Scalar(50, 255, 50), 2);
+            }
         }
 
         /*
