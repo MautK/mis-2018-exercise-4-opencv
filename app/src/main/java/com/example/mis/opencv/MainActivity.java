@@ -55,12 +55,14 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
                 {
                     Log.i(TAG, "OpenCV loaded successfully");
                     mOpenCvCameraView.enableView();
-                    mEyeCascadeClassifier = new CascadeClassifier();
-                    mEyeCascadeClassifier.load(initAssetFile("haarcascade_eye.xml"));
-                    mMouthCascadeClassiefier = new CascadeClassifier();
-                    mMouthCascadeClassiefier.load(initAssetFile("haarcascade_smile.xml"));
+//                    mEyeCascadeClassifier = new CascadeClassifier();
+//                    mEyeCascadeClassifier.load(initAssetFile("haarcascade_eye.xml"));
+//                    mMouthCascadeClassiefier = new CascadeClassifier();
+//                    mMouthCascadeClassiefier.load(initAssetFile("haarcascade_smile.xml"));
+                    // source of 'nose_new.xml'
+                    // https://github.com/opencv/opencv_contrib/blob/master/modules/face/data/cascades/haarcascade_mcs_nose.xml
                     mNoseCascadeClassifier = new CascadeClassifier();
-                    mNoseCascadeClassifier.load(initAssetFile("nose.xml"));
+                    mNoseCascadeClassifier.load(initAssetFile("nose_new.xml"));
                     mScalar = new Scalar(0, 0, 0, 0);
 
                 } break;
@@ -144,8 +146,8 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         Mat col  = inputFrame.rgba();
 
         mNoseCascadeClassifier.detectMultiScale(
-                gray, mRect, 1.1, 2,0,
-                new Size(100, 100), new Size(0, 0)
+                gray, mRect, 1.1, 3,0,
+                new Size(75, 75), new Size(0, 0)
         );
         for (Rect rect : mRect.toArray()) {
             Imgproc.rectangle(col, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(50, 255, 50), 2);
