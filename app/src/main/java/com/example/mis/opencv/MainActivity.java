@@ -39,13 +39,8 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     private CameraBridgeViewBase mOpenCvCameraView;
     private boolean              mIsJavaCamera = true;
     private MenuItem             mItemSwitchCamera = null;
-    private CascadeClassifier    mEyeCascadeClassifier = null;
-    private CascadeClassifier    mMouthCascadeClassiefier = null;
     private CascadeClassifier    mNoseCascadeClassifier = null;
-    private Mat                  mMat = null;
-    private MatOfRect            mRect = null;
-    private VideoCapture         videoDevice = null;
-    private Scalar               mScalar = null;
+    private CascadeClassifier    mFaceCascadeClassifier = null;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -55,16 +50,13 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
                 {
                     Log.i(TAG, "OpenCV loaded successfully");
                     mOpenCvCameraView.enableView();
-//                    mEyeCascadeClassifier = new CascadeClassifier();
-//                    mEyeCascadeClassifier.load(initAssetFile("haarcascade_eye.xml"));
-//                    mMouthCascadeClassiefier = new CascadeClassifier();
-//                    mMouthCascadeClassiefier.load(initAssetFile("haarcascade_smile.xml"));
                     // source of 'nose_new.xml'
                     // https://github.com/opencv/opencv_contrib/blob/master/modules/face/data/cascades/haarcascade_mcs_nose.xml
                     mNoseCascadeClassifier = new CascadeClassifier();
                     mNoseCascadeClassifier.load(initAssetFile("nose_new.xml"));
-                    mScalar = new Scalar(0, 0, 0, 0);
-
+                    // TODO: we need to say where we got it from
+                    mFaceCascadeClassifier = new CascadeClassifier();
+                    mFaceCascadeClassifier.load(initAssetFile("haarcascade_frontalface_default.xml"));
                 } break;
                 default:
                 {
@@ -128,54 +120,26 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     }
 
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-
-        //return inputFrame.rgba();
-        /*
-        Mat col  = inputFrame.rgba();
-        Rect foo = new Rect(new Point(100,100), new Point(200,200));
-        Imgproc.rectangle(col, foo.tl(), foo.br(), new Scalar(0, 0, 255), 3);
-        return col;
-        */
-
-        mRect = new MatOfRect();
-        mMat = new Mat();
-        videoDevice = new VideoCapture();
-
+        MatOfRect mRect = new MatOfRect();
+        double mFaceValue = 150.0;
+        double faceWidth = 2/3 * mFaceValue;
+        double faceHeight = mFaceValue;
 
         Mat gray = inputFrame.gray();
         Mat col  = inputFrame.rgba();
 
-        mNoseCascadeClassifier.detectMultiScale(
-                gray, mRect, 1.1, 3,0,
-                new Size(75, 75), new Size(0, 0)
-        );
+        mFaceCascadeClassifier.detectMultiScale( gray, mRect, 1.2, 6,0,
+                new Size(faceWidth, faceHeight), new Size(0, 0));
+
         for (Rect rect : mRect.toArray()) {
-            Imgproc.rectangle(col, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(50, 255, 50), 2);
+            Imgproc.circle(
+                    col,
+                    new Point(rect.x + rect.width / 2, rect.y + rect.height / 1.65),
+                    rect.width / 7,
+                    new Scalar(255, 50, 50),
+                    -1
+            );
         }
-
-        /*
-        for(int x = 0; x < mRect.width(); x++){
-            for(int y = 0; y < mRect.height(); y++){
-                mRect
-            }
-        }
-        */
-
-
-//        Mat tmp = gray.clone();
-        // Imgproc.Canny(gray, tmp, 30, 100);
-//        Imgproc.cvtColor(tmp, col, Imgproc.COLOR_GRAY2RGBA, 4);
-
-//        videoDevice.read(mMat);
-//        mEyeCascadeClassifier.detectMultiScale(mMat, mRect);
-//        for (Rect rect : mRect.toArray()) {
-//            Imgproc.rectangle(mMat, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), mScalar, 3);
-//        }
-//
-//
-//        Mat tmp = gray.clone();
-//        Imgproc.Canny(gray, tmp, 30, 100);
-//        Imgproc.cvtColor(tmp, col, Imgproc.COLOR_GRAY2RGBA, 4);
 
         return col;
     }
